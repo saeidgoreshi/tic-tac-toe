@@ -1,0 +1,16 @@
+.subfield {
+    width:100px;
+    height:100px;
+    border : 1px solid black;
+    text-align:center;
+}
+.player0 {
+    background-color:red;
+}
+.player1 {
+  background-color: green;
+}
+.start-game-button
+{
+    margin:10px 0px 10px 0px;
+}
