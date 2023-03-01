@@ -1,20 +1,46 @@
 
-<div class="justify-content-center d-flex" >
-  <p class="currentStatus"></p>
+
+
+<div class="justify-content-center d-flex">
+  <mat-form-field appearance="fill">
+    <mat-label>Archived Results</mat-label>
+    <mat-select (selectionChange)="onArchivedChange($event)">
+      <mat-option *ngFor="let result of playBoard" [value]="result.playBoard">
+        Game #{{result.id}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
 </div>
 
 <div class="justify-content-center d-flex">
-  <button mat-raised-button class="start-game-button"
-          color="accent" (click)="startGame();">Start Tic Tac Toe</button>
+  <p class="currentStatus"></p>
 </div>
 
-<div class="justify-content-center d-flex" *ngIf="this.game.status === 1">
+<div class="justify-content-center d-flex" *ngIf="this.game.status === 0 ">
+  <button mat-raised-button class="start-game-button"
+          color="accent" (click)="saveGame();">
+    Archive Result
+  </button>
+</div>
+
+<div class="justify-content-center d-flex"  >
+  <button mat-raised-button class="start-game-button"
+          color="accent" (click)="startGame();">
+    Start Tic Tac Toe
+  </button>
+</div>
+
+
+
+<div class="justify-content-center d-flex" *ngIf="this.game.status === 1 || this.game.status === 2">
   <table>
     <tr *ngFor="let Row of game.field; let x = index">
       <td *ngFor="let cell of Row; let y = index" class="subfield"
           (click)="onclick(x,y)" >
-        {{ cell }} 
+        {{ cell }}
       </td>
     </tr>
   </table>
 </div>
+
+

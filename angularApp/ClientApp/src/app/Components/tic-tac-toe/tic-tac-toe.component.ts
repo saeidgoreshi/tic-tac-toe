@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { Logic } from './logic';
 import { PlayerNum,   StatusEnum } from './Enums';
 
+import { gql } from '@apollo/client/core';
+import { Apollo } from 'apollo-angular';
+
 @Component({
   selector: 'app-tic-tac-toe',
   templateUrl: './tic-tac-toe.component.html',
@@ -10,15 +13,82 @@ import { PlayerNum,   StatusEnum } from './Enums';
 })
 export class TicTacToeComponent implements OnInit {
 
-  constructor(public game: Logic) { }
+  playBoard: any[] = [];
+  isLoading = true;
+  isError: any;
+
+  constructor(public game: Logic, private apollo: Apollo) { }
  
   ngOnInit(): void {
+    this.loadArchivedList();
   }
+  loadArchivedList(): void
+  {
+    
+    this.apollo
+      .watchQuery({
+        
+        query: gql` {ticTacToes {  id playBoard } } `,
+      })
+      .valueChanges.subscribe((result: any) => {
+        this.playBoard = result?.data?.ticTacToes;
+        this.isLoading = result.loading;
+        this.isError = result.error;
+      });
 
+  }
+  loadArchivedBoard(event : any): void
+  {
+    let flatBoard = event.value.split(',');
+    let playBoard = [["", "", ""], ["", "", ""], ["", "", ""]];
+    for (let x = 0; x < playBoard.length; x++)
+      for (let y = 0; y < playBoard.length; y++)
+        playBoard[x][y] = flatBoard[x * 3 + y]
+
+    this.game.field = playBoard;
+    this.game.status = StatusEnum.Archived;
+
+    console.log(flatBoard);
+    console.log(playBoard);
+  }
+  onArchivedChange(event: any): void {
+    console.log(event);
+    this.loadArchivedBoard(event);
+    
+  }
   startGame(): void
   {
     this.game.startGame();
-    this.changeTurnTo(PlayerNum.Player1);  
+    this.changeTurnTo(PlayerNum.Player1);
+  }
+  saveGame(): void
+  {
+    const _POST = gql`
+    mutation archiveTicTacToe($playBoard: String!) {
+      archiveTicTacToe(playBoard: $playBoard) {
+       id
+          playBoard
+      }
+    }
+  `;
+   
+    this.apollo
+      .mutate({
+        mutation: _POST,
+        variables: {
+          playBoard: this.game.field.toString(),
+        },
+      }).subscribe(
+        ({ data }) => {
+          this.loadArchivedList();
+          console.log('got data', data);
+        },
+        error => {
+          console.log('there was an error sending the query', error);
+        },
+    );
+
+    
   }
 
   changeTurnTo(turn: PlayerNum): void
@@ -42,7 +112,7 @@ export class TicTacToeComponent implements OnInit {
         
       }
       else {
-        
+
         this.game.field[x][y] = PlayerNum.Player2.toString();
         this.changeTurnTo(PlayerNum.Player1);
         

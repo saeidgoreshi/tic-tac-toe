@@ -17,10 +17,16 @@ import { ReactiveFormsModule } from "@angular/forms";
 import { TicTacToeComponent } from './Components/tic-tac-toe/tic-tac-toe.component';
 
 
+import { ApolloModule, APOLLO_OPTIONS } from 'apollo-angular';
+import {HttpLink} from 'apollo-angular/http';
+import {InMemoryCache} from '@apollo/client/core';
+
+import { MatSelectModule } from '@angular/material/select';
+import { environment } from '../environments/environment';
 
 @NgModule({
   declarations: [
-    AppComponent,
+    AppComponent,   
     HomeComponent,
     TicTacToeComponent,
   ],
@@ -32,8 +38,10 @@ import { TicTacToeComponent } from './Components/tic-tac-toe/tic-tac-toe.compone
     MatButtonModule,
     BrowserAnimationsModule,
     HttpClientModule,
-   
+    
     ReactiveFormsModule,//Tictactoe
+    ApolloModule,
+    MatSelectModule,
 
     RouterModule.forRoot([
       { path: '', component: HomeComponent, pathMatch: 'full' },
@@ -42,7 +50,22 @@ import { TicTacToeComponent } from './Components/tic-tac-toe/tic-tac-toe.compone
       
     ])
   ],
-  providers: [],
+  providers: [
+
+    {
+      provide: APOLLO_OPTIONS,
+      useFactory: (httpLink: HttpLink) => {
+        return {
+          cache: new InMemoryCache(),
+          link: httpLink.create({
+            uri: `${environment.baseUrl}/graphql/`,
+          }),
+        };
+      },
+      deps: [HttpLink],
+    }
+  
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
