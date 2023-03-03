@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  baseUrl: '',
+  baseUrl: 'https://vantage-tag-systems-tic-tac-toe-api.azurewebsites.net'
 };
